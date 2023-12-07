@@ -1,0 +1,14 @@
+services:
+  db:
+    image: mysql:8.2.0
+    container_name: mysql_apt_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: apt_db
+      MYSQL_USER: piotr
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - 3306:3306
+    volumes:
+      - /var/lib/mysql/apt_db:/var/lib/mysql
