@@ -12,4 +12,10 @@ values
 ('2023-01-05 20:21:15','śżp');
 
 --@block
-select * from apt_links
+select * from apt_links;
+
+--@block
+select date, count(1)
+from apt_links 
+group by date
+order by date desc;
