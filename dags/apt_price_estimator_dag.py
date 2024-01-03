@@ -26,4 +26,9 @@ with DAG(
         bash_command='python /opt/airflow/dags/src/get_auction_list.py'
     )
 
-    task1
+    task2 = BashOperator(
+    task_id='get_auction_details',
+    bash_command='python /opt/airflow/dags/src/get_auction_details.py'
+    )
+
+    task1 >> task2

@@ -11,11 +11,11 @@ def get_list():
     
     start = time.time()
 
-    # flat_size = [[0,30],[30,35],[35,37],[37,40],[40,42],[42,45],[45,47],[47,50],
-    #              [50,52],[52,55],[55,57],[57,60],[60,62],[62,65],[65,70],[70,75],
-    #              [75,80],[80,90],[90,100],[100,120],[120,1000]]
+    flat_size = [[0,30],[30,35],[35,37],[37,40],[40,42],[42,45],[45,47],[47,50],
+                 [50,52],[52,55],[55,57],[57,60],[60,62],[62,65],[65,70],[70,75],
+                 [75,80],[80,90],[90,100],[100,120],[120,1000]]
 
-    flat_size = [[0,15]]
+    # flat_size = [[0,15]]
 
     warsaw_tz = pytz.timezone('Europe/Warsaw') 
     timestamp = datetime.datetime.now(warsaw_tz).strftime('%Y-%m-%d_%H:%M:%S')
@@ -39,6 +39,8 @@ def get_list():
             for link in links:
                 auction_list.append((timestamp, link['data-href']))
 
+    auction_list = list(set(auction_list))
+
     insert_multiple_records = "INSERT INTO apt_links (date, link) VALUES (%s, %s)"
 
     with connector.connect(
@@ -46,10 +48,10 @@ def get_list():
         user = 'piotr',
         password = os.environ['MYSQL_PASSWORD'],
         database = 'apt_db'
-    ) as database:
-        with database.cursor() as cursor:
+    ) as conn:
+        with conn.cursor() as cursor:
             cursor.executemany(insert_multiple_records, auction_list)
-            database.commit()
+            conn.commit()
 
     print(f'PIOTR: mi={mi} ma={ma} complete, auction list has now {len(auction_list)} links')
 
