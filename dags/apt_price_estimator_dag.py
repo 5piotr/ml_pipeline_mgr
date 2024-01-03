@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
@@ -5,7 +6,10 @@ from airflow.operators.bash import BashOperator
 default_args = {
     'owner':'piotr',
     'retries':0,
-    'retry_delay':timedelta(minutes=3)
+    'retry_delay':timedelta(minutes=3),
+    'email': [os.environ['PIOTR_EMAIL']],
+    'email_on_failure': True,
+    'email_on_retry': False,
 }
 
 with DAG(
@@ -23,4 +27,3 @@ with DAG(
     )
 
     task1
-    
