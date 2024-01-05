@@ -1,7 +1,10 @@
 import os
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
+
+from src.get_auction_list import get_list
+from src.get_auction_details import get_details
 
 default_args = {
     'owner':'piotr',
@@ -21,14 +24,14 @@ with DAG(
     catchup=False
 ) as dag:
 
-    task1 = BashOperator(
+    task1 = PythonOperator(
         task_id='get_auction_list',
-        bash_command='python /opt/airflow/dags/src/get_auction_list.py'
+        python_callable=get_list
     )
 
-    task2 = BashOperator(
-    task_id='get_auction_details',
-    bash_command='python /opt/airflow/dags/src/get_auction_details.py'
+    task2 = PythonOperator(
+        task_id='get_auction_details',
+        python_callable=get_details
     )
 
     task1 >> task2

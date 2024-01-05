@@ -141,10 +141,10 @@ def get_details():
         database = 'apt_db'
     ) as conn:
         with conn.cursor() as cursor:
-                cursor.execute(query1)
-                result1 = cursor.fetchall()
-                cursor.execute(query2)
-                result2 = cursor.fetchall()
+            cursor.execute(query1)
+            result1 = cursor.fetchall()
+            cursor.execute(query2)
+            result2 = cursor.fetchall()
 
     auction_list = [row[0] for row in result1]
     date = result2[0][0]

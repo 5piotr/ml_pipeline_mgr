@@ -1,15 +1,11 @@
 import os
 import requests
 import datetime
-import time
 from mysql import connector
 from bs4 import BeautifulSoup
 import pytz
-import my_lib
 
 def get_list():
-    
-    start = time.time()
 
     flat_size = [[0,30],[30,35],[35,37],[37,40],[40,42],[42,45],[45,47],[47,50],
                  [50,52],[52,55],[55,57],[57,60],[60,62],[62,65],[65,70],[70,75],
@@ -39,7 +35,10 @@ def get_list():
             for link in links:
                 auction_list.append((timestamp, link['data-href']))
 
+        print(f'PIOTR: mi={mi} ma={ma} complete, auction list has now {len(auction_list)} links')
+
     auction_list = list(set(auction_list))
+    print(f'PIOTR: duplicates removed, list has now {len(auction_list)} links')
 
     insert_multiple_records = "INSERT INTO apt_links (date, link) VALUES (%s, %s)"
 
@@ -52,11 +51,6 @@ def get_list():
         with conn.cursor() as cursor:
             cursor.executemany(insert_multiple_records, auction_list)
             conn.commit()
-
-    print(f'PIOTR: mi={mi} ma={ma} complete, auction list has now {len(auction_list)} links')
-
-    stop = time.time()
-    print('PIOTR: task duration', my_lib.time_format(stop-start))
 
 if __name__=='__main__':
     get_list()

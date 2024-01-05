@@ -45,3 +45,6 @@ select date, count(1)
 from apt_details_raw
 group by date
 order by date desc;
+
+--@block
+truncate table apt_links;
