@@ -134,19 +134,22 @@ def get_details():
     from apt_links
     '''
 
-    with connector.connect(
+    conn = connector.connect(
         host = 'mysql_apt_db',
         user = 'piotr',
         password = os.environ['MYSQL_PASSWORD'],
-        database = 'apt_db'
-    ) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(query1)
-            result1 = cursor.fetchall()
-            cursor.execute(query2)
-            result2 = cursor.fetchall()
+        database = 'apt_db')
+    
+    with conn.cursor() as cursor:
+        cursor.execute(query1)
+        result1 = cursor.fetchall()
 
     auction_list = [row[0] for row in result1]
+
+    with conn.cursor() as cursor:    
+        cursor.execute(query2)
+        result2 = cursor.fetchall()
+
     date = result2[0][0]
 
     i = 0
@@ -173,15 +176,9 @@ def get_details():
         record = (date, city, district, voivodeship, localization_y, localization_x, market,\
                   offer_type, area, rooms, floor, floors, build_yr, price, url)
 
-        with connector.connect(
-            host = 'mysql_apt_db',
-            user = 'piotr',
-            password = os.environ['MYSQL_PASSWORD'],
-            database = 'apt_db'
-        ) as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(insert_single_record, record)
-                conn.commit()
+        with conn.cursor() as cursor:
+            cursor.execute(insert_single_record, record)
+            conn.commit()
 
         i += 1
         if i%500 == 0 or i == len(auction_list):
@@ -189,6 +186,8 @@ def get_details():
             warsaw_tz = pytz.timezone('Europe/Warsaw') 
             timestamp = datetime.datetime.now(warsaw_tz).strftime('%H:%M:%S')
             print(f'PIOTR: list completion {completion}% at {timestamp}')
+
+    conn.close()
 
 if __name__=='__main__':
     get_details()
