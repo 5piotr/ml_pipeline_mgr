@@ -18,8 +18,8 @@ default_args = {
 
 with DAG(
     default_args=default_args,
-    dag_id='test_docker_op_dag.py',
-    description='testing docker operator',
+    dag_id='test_trainer_dag',
+    description='testing trainer',
     start_date=datetime(2024, 1, 1),
     schedule='0 3 2 * *',
     catchup=False
@@ -36,28 +36,15 @@ with DAG(
         container_name='trainer_test',
         api_version='auto',
         auto_remove=True,
-        command="python src/test.py",
+        command="python src/clustering.py",
         docker_url="unix://var/run/docker.sock",
         network_mode="bridge",
         mount_tmp_dir=False,
         mounts=[Mount(source='/home/piotr/projects/apartment_price_estimator_v2/trainer',
                       target='/code',
-                      type='bind')]
+                      type='bind')],
+        environment={'MYSQL_PASSWORD': os.environ['MYSQL_PASSWORD'],
+                     'PAPUGA_IP': os.environ['PAPUGA_IP']}
     )
 
-    task3 = DockerOperator(
-        task_id='test_docker_2',
-        image='trainer:latest',
-        container_name='trainer_test_2',
-        api_version='auto',
-        auto_remove=True,
-        command="pip list",
-        docker_url="unix://var/run/docker.sock",
-        network_mode="bridge",
-        mount_tmp_dir=False,
-        mounts=[Mount(source='/home/piotr/projects/apartment_price_estimator_v2/trainer',
-                      target='/code',
-                      type='bind')]
-    )
-
-    task1 >> task2 >> task3
+    task1 >> task2

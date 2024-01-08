@@ -45,3 +45,25 @@ create table apt_details(
     url varchar(255),
     price_of_sqm float
 );
+
+--@block
+create table apt_details_cls(
+    id int primary key auto_increment,
+    date timestamp,
+    city varchar(255),
+    district varchar(255),
+    voivodeship varchar(255),
+    localization_y float,
+    localization_x float,
+    market varchar(255),
+    offer_type varchar(255),
+    area float,
+    rooms int,
+    floor int,
+    floors int,
+    build_yr int,
+    price float,
+    url varchar(255),
+    price_of_sqm float,
+    cluster int
+);
