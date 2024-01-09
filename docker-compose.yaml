@@ -14,6 +14,7 @@ x-airflow-common:
     MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     PIOTR_EMAIL: ${PIOTR_EMAIL}
     PAPUGA_IP: ${PAPUGA_IP}
+    APT_DIR: ${APT_DIR}
     AIRFLOW__EMAIL__EMAIL_BACKEND: airflow.utils.email.send_email_smtp
     AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
     AIRFLOW__SMTP__SMTP_STARTTLS: True

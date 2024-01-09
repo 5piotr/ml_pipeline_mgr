@@ -1,4 +1,11 @@
-logs/
+logs/*
+!logs/.gitkeep
 .ipynb_checkpoints/
 .vscode/
+!train_data/.gitkeep
+
 db_test.sql
+x_test.pkl
+x_train.pkl
+y_test.pkl
+y_train.pkl

@@ -24,6 +24,6 @@ kmeans = KMeans(n_clusters = 600, n_init='auto', random_state = 0).fit(X)
 data['cluster'] = kmeans.labels_
 
 with engine.connect() as conn:
-    data.to_sql(con=conn, name='apt_details_cls', if_exists='append', index=False)
+    data.to_sql(con=conn, name='apt_details_cls', if_exists='replace', index=False)
 
 engine.dispose()

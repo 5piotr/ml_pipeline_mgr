@@ -5,7 +5,7 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
 
-from src.clean_data import clean
+
 
 default_args = {
     'owner':'piotr',
@@ -25,13 +25,8 @@ with DAG(
     catchup=False
 ) as dag:
 
-    task1 = PythonOperator(
-        task_id='clean_data',
-        python_callable=clean
-    )
-
-    task2 = DockerOperator(
-        task_id='test_docker',
+    task1 = DockerOperator(
+        task_id='clustering',
         image='trainer:latest',
         container_name='trainer_test',
         api_version='auto',
@@ -40,7 +35,24 @@ with DAG(
         docker_url="unix://var/run/docker.sock",
         network_mode="bridge",
         mount_tmp_dir=False,
-        mounts=[Mount(source='/home/piotr/projects/apartment_price_estimator_v2/trainer',
+        mounts=[Mount(source=f'{os.environ["APT_DIR"]}/trainer',
+                      target='/code',
+                      type='bind')],
+        environment={'MYSQL_PASSWORD': os.environ['MYSQL_PASSWORD'],
+                     'PAPUGA_IP': os.environ['PAPUGA_IP']}
+    )
+
+    task2 = DockerOperator(
+        task_id='preparing_train_data',
+        image='trainer:latest',
+        container_name='trainer_test',
+        api_version='auto',
+        auto_remove=True,
+        command="python src/preparing_train_data.py",
+        docker_url="unix://var/run/docker.sock",
+        network_mode="bridge",
+        mount_tmp_dir=False,
+        mounts=[Mount(source=f'{os.environ["APT_DIR"]}/trainer',
                       target='/code',
                       type='bind')],
         environment={'MYSQL_PASSWORD': os.environ['MYSQL_PASSWORD'],

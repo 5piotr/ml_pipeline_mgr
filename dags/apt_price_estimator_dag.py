@@ -5,6 +5,7 @@ from airflow.operators.python import PythonOperator
 
 from src.get_auction_list import get_list
 from src.get_auction_details import get_details
+from src.clean_data import clean
 
 default_args = {
     'owner':'piotr',
@@ -34,4 +35,9 @@ with DAG(
         python_callable=get_details
     )
 
-    task1 >> task2
+    task3 = PythonOperator(
+        task_id='clean_data',
+        python_callable=clean
+    )
+
+    task1 >> task2 >> task3
