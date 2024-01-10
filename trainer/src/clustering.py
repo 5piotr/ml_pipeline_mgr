@@ -1,6 +1,7 @@
 import os
 from sqlalchemy import create_engine
 import pandas as pd
+import pickle as pkl
 from sklearn.cluster import KMeans
 
 query = '''
@@ -19,11 +20,14 @@ engine = create_engine(db_url)
 with engine.connect() as conn:
     data = pd.read_sql_query(sql=query, con=conn, index_col='id')
 
+engine.dispose()
+
 X = data.loc[:,['localization_y','localization_x']].values
 kmeans = KMeans(n_clusters = 600, n_init='auto', random_state = 0).fit(X)
 data['cluster'] = kmeans.labels_
 
-with engine.connect() as conn:
-    data.to_sql(con=conn, name='apt_details_cls', if_exists='replace', index=False)
+with open('train_data/apt_details_cls.pkl','wb') as file:
+    pkl.dump(data, file)
 
-engine.dispose()
+with open('models/kmeans.pkl','wb') as file:
+    pkl.dump(kmeans, file)

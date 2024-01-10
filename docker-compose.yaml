@@ -69,7 +69,7 @@ services:
       context: ./trainer
       dockerfile: Dockerfile
     image: trainer:latest
-    container_name: trainer_container
+    container_name: trainer_dummy
 
   airflow-webserver:
     <<: *airflow-common
