@@ -47,23 +47,12 @@ create table apt_details(
 );
 
 --@block
-create table apt_details_cls(
+create table apt_log(
     id int primary key auto_increment,
     date timestamp,
-    city varchar(255),
-    district varchar(255),
-    voivodeship varchar(255),
-    localization_y float,
-    localization_x float,
-    market varchar(255),
-    offer_type varchar(255),
-    area float,
-    rooms int,
-    floor int,
-    floors int,
-    build_yr int,
-    price float,
-    url varchar(255),
-    price_of_sqm float,
-    cluster int
+    auction_links int,
+    data_raw int,
+    data_clean int,
+    ann_r2 float,
+    xgb_r2 float
 );

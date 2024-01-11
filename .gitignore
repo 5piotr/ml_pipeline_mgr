@@ -8,10 +8,7 @@ logs/
 train_data/
 !train_data/.gitkeep
 
-# models/
-# !models/.gitkeep
+models/
+!models/.gitkeep
 
 db_test.sql
-kmeans.pkl
-scaler.pkl
-ann.keras

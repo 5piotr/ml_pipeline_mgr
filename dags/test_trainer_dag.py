@@ -28,7 +28,7 @@ with DAG(
     task1 = DockerOperator(
         task_id='clustering',
         image='trainer:latest',
-        container_name='trainer_container',
+        container_name='cluster_container',
         api_version='auto',
         auto_remove=True,
         command="python src/clustering.py",
@@ -45,7 +45,7 @@ with DAG(
     task2 = DockerOperator(
         task_id='preparing_train_data',
         image='trainer:latest',
-        container_name='trainer_container',
+        container_name='prepare_container',
         api_version='auto',
         auto_remove=True,
         command="python src/preparing_train_data.py",
@@ -63,7 +63,7 @@ with DAG(
     task3 = DockerOperator(
         task_id='training_ann',
         image='trainer:latest',
-        container_name='trainer_container',
+        container_name='ann_container',
         api_version='auto',
         auto_remove=True,
         command="python src/training_ann.py",
@@ -75,4 +75,19 @@ with DAG(
                       type='bind')]
     )
 
-    task1 >> task2 >> task3
+    task4 = DockerOperator(
+        task_id='training_xgb',
+        image='trainer:latest',
+        container_name='xgb_container',
+        api_version='auto',
+        auto_remove=True,
+        command="python src/training_xgb.py",
+        docker_url="unix://var/run/docker.sock",
+        network_mode="bridge",
+        mount_tmp_dir=False,
+        mounts=[Mount(source=f'{os.environ["APT_DIR"]}/trainer',
+                      target='/code',
+                      type='bind')]
+    )
+
+    task1 >> task2 >> task3 >> task4

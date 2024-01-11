@@ -21,6 +21,8 @@ def clean():
     with engine.connect() as conn:
         data_raw = pd.read_sql_query(sql=query, con=conn, index_col='id')
 
+    print(f'PIOTR: raw data shape: {data_raw.shape}')
+
     # renaming market type
     data_raw.market.replace(['pierwotny','wtorny'], ['primary_market','aftermarket'], inplace=True)
 
@@ -42,6 +44,7 @@ def clean():
     data_raw.floor.replace(['niski parter','parter'], '0', inplace=True)
     data_raw.floor.replace('powyżej 30', '30', inplace=True)
     data_raw.drop(data_raw[data_raw.floor=='poddasze'].index, axis=0, inplace=True)
+    data_raw.drop(data_raw[data_raw.floor=='piwnica mieszkalna/suterena'].index, axis=0, inplace=True)
 
     data_raw.floors.replace(['0 (parter)','powyżej 30'], ['0','30'], inplace=True)
 
@@ -62,7 +65,7 @@ def clean():
     # cleaning outliers
     outliers_dict = dict()
 
-    for column in ['area','build_yr','price','price_of_sqm']:
+    for column in ['area','price','price_of_sqm']:
         upper_quartile = np.nanpercentile(data_raw[column], 99.0)
         lower_quartile = np.nanpercentile(data_raw[column], 1.0)
         outliers_dict[column] = (lower_quartile, upper_quartile)
@@ -80,6 +83,8 @@ def clean():
 
     # removing eaven location coordinates which have been identified as false
     data_raw.drop(data_raw[(data_raw.localization_x%1==0) | (data_raw.localization_y%1==0)].index, inplace=True)
+
+    print(f'PIOTR: processed data shape: {data_raw.shape}')
 
     with engine.connect() as conn:
         data_raw.to_sql(con=conn, name='apt_details', if_exists='append', index=False)
