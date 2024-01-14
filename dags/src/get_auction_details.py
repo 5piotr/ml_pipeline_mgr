@@ -125,13 +125,13 @@ def get_price(soup):
 def get_details():
 
     query1 = '''
-    select link 
-    from apt_links
-    where date = (select max(date) from apt_links)
+    select url 
+    from apt_urls
+    where date = (select max(date) from apt_urls)
     '''
     query2 = '''
     select max(date)
-    from apt_links
+    from apt_urls
     '''
 
     conn = connector.connect(

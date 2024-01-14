@@ -24,7 +24,7 @@ with DAG(
 ) as dag:
 
     task1 = PythonOperator(
-        task_id='get_auction_list',
+        task_id='log_run',
         python_callable=log
     )
 

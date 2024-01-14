@@ -1,8 +1,8 @@
 --@block
-create table apt_links(
+create table apt_urls(
     id int primary key auto_increment,
     date timestamp,
-    link varchar(255)
+    url varchar(255)
 );
 
 --@block
@@ -50,7 +50,7 @@ create table apt_details(
 create table apt_log(
     id int primary key auto_increment,
     date timestamp,
-    auction_links int,
+    auction_urls int,
     data_raw int,
     data_clean int,
     ann_r2 float,

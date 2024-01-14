@@ -35,12 +35,12 @@ def get_list():
             for link in links:
                 auction_list.append((timestamp, link['data-href']))
 
-        print(f'PIOTR: mi={mi} ma={ma} complete, auction list has now {len(auction_list)} links')
+        print(f'PIOTR: mi={mi} ma={ma} complete, auction list has now {len(auction_list)} urls')
 
     auction_list = list(set(auction_list))
-    print(f'PIOTR: duplicates removed, list has now {len(auction_list)} links')
+    print(f'PIOTR: duplicates removed, list has now {len(auction_list)} urls')
 
-    insert_multiple_records = "INSERT INTO apt_links (date, link) VALUES (%s, %s)"
+    insert_multiple_records = "INSERT INTO apt_urls (date, url) VALUES (%s, %s)"
 
     with connector.connect(
         host = 'mysql_apt_db',

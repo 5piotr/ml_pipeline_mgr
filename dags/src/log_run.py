@@ -22,16 +22,16 @@ def log():
 
     query1 = '''
     select max(date)
-    from apt_links
+    from apt_urls
     '''
     date = get_value_from_query(query=query1, conn=conn)
 
     query2 = f'''
-    select count(link)
-    from apt_links
+    select count(url)
+    from apt_urls
     where date = '{date}'
     '''
-    auction_links = get_value_from_query(query=query2, conn=conn)
+    auction_urls = get_value_from_query(query=query2, conn=conn)
 
     query3 = f'''
     select count(url)
@@ -57,10 +57,10 @@ def log():
 
     insert_single_record = '''
     insert into apt_log
-    (date, auction_links, data_raw, data_clean, ann_r2, xgb_r2, prod)
+    (date, auction_urls, data_raw, data_clean, ann_r2, xgb_r2, prod)
     values (%s, %s, %s, %s, %s, %s, %s)
     '''
-    record = (date, auction_links, data_raw, data_clean, ann_r2, xgb_r2, prod)
+    record = (date, auction_urls, data_raw, data_clean, ann_r2, xgb_r2, prod)
 
     with conn.cursor() as cursor:
         cursor.execute(insert_single_record, record)
