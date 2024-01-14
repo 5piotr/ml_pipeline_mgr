@@ -168,10 +168,10 @@ def get_details():
         price = get_price(soup)
 
         insert_single_record = '''
-        INSERT INTO apt_details_raw
+        insert into apt_details_raw
         (date, city, district, voivodeship, localization_y, localization_x, market, offer_type,
             area, rooms, floor, floors, build_yr, price, url)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         '''
         record = (date, city, district, voivodeship, localization_y, localization_x, market,\
                   offer_type, area, rooms, floor, floors, build_yr, price, url)

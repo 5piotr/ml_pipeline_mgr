@@ -3,9 +3,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-from src.get_auction_list import get_list
-from src.get_auction_details import get_details
-from src.clean_data import clean
+from src.log_run import log
 
 default_args = {
     'owner':'piotr',
@@ -27,17 +25,7 @@ with DAG(
 
     task1 = PythonOperator(
         task_id='get_auction_list',
-        python_callable=get_list
+        python_callable=log
     )
 
-    task2 = PythonOperator(
-        task_id='get_auction_details',
-        python_callable=get_details
-    )
-
-    task3 = PythonOperator(
-        task_id='clean_data',
-        python_callable=clean
-    )
-
-    task1 >> task2 >> task3
+    task1
