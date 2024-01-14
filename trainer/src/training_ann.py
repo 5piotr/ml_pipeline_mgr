@@ -11,7 +11,7 @@ scaler = MinMaxScaler()
 x_train= scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
 
-with open('models/scaler.pkl','wb') as file:
+with open('/models/scaler.pkl','wb') as file:
     pkl.dump(scaler, file)
 
 def create_model():
@@ -32,10 +32,10 @@ model.fit(x=x_train,
           y=y_train,
           validation_split=0.1,
           batch_size=256,
-          epochs=1000,
+          epochs=10,
           verbose=0)
 
-model.save('/code/models/ann.keras')
+model.save('/models/ann.keras')
 
 predictions = model.predict(x_test, verbose=0)
 

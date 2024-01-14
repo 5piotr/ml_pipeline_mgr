@@ -17,4 +17,4 @@ predictions = model.predict(x_test)
 
 r2 = lib.evaluate_pred(y_test, predictions)
 
-model.save_model('/code/models/xgb.json')
+model.save_model('/models/xgb.json')

@@ -37,6 +37,9 @@ with DAG(
         mount_tmp_dir=False,
         mounts=[Mount(source=f'{os.environ["APT_DIR"]}/trainer',
                       target='/code',
+                      type='bind'),
+                Mount(source=f'{os.environ["APT_DIR"]}/models',
+                      target='/models',
                       type='bind')],
         environment={'MYSQL_PASSWORD': os.environ['MYSQL_PASSWORD'],
                      'PAPUGA_IP': os.environ['PAPUGA_IP']}
@@ -72,6 +75,9 @@ with DAG(
         mount_tmp_dir=False,
         mounts=[Mount(source=f'{os.environ["APT_DIR"]}/trainer',
                       target='/code',
+                      type='bind'),
+                Mount(source=f'{os.environ["APT_DIR"]}/models',
+                      target='/models',
                       type='bind')]
     )
 
@@ -87,6 +93,9 @@ with DAG(
         mount_tmp_dir=False,
         mounts=[Mount(source=f'{os.environ["APT_DIR"]}/trainer',
                       target='/code',
+                      type='bind'),
+                Mount(source=f'{os.environ["APT_DIR"]}/models',
+                      target='/models',
                       type='bind')]
     )
 

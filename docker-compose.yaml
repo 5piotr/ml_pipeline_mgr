@@ -14,7 +14,7 @@ x-airflow-common:
     MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     PIOTR_EMAIL: ${PIOTR_EMAIL}
     PAPUGA_IP: ${PAPUGA_IP}
-    APT_DIR: ${APT_DIR}
+    APT_DIR: ${PWD}
     AIRFLOW__EMAIL__EMAIL_BACKEND: airflow.utils.email.send_email_smtp
     AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
     AIRFLOW__SMTP__SMTP_STARTTLS: True
@@ -28,6 +28,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - /var/run/docker.sock:/var/run/docker.sock:ro # sudo chmod 666 /var/run/docker.sock
+    - models:/models
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -178,3 +179,10 @@ services:
       - bash
       - -c
       - airflow
+
+volumes:
+  models:
+    driver_opts:
+      type: none
+      device: ${PWD}/models
+      o: bind

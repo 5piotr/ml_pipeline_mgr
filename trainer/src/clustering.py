@@ -29,5 +29,5 @@ data['cluster'] = kmeans.labels_
 with open('train_data/apt_details_cls.pkl','wb') as file:
     pkl.dump(data, file)
 
-with open('models/kmeans.pkl','wb') as file:
+with open('/models/kmeans.pkl','wb') as file:
     pkl.dump(kmeans, file)
