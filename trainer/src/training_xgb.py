@@ -13,8 +13,11 @@ model.fit(X=x_train,
           y=y_train,
           verbose=True)
 
+model.save_model('/models/temp/xgb.json')
+
 predictions = model.predict(x_test)
 
 r2 = lib.evaluate_pred(y_test, predictions)
 
-model.save_model('/models/xgb.json')
+with open('/models/temp/xgb.r2','w') as file:
+    file.write(str(r2))

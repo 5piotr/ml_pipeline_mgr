@@ -38,3 +38,10 @@ with open('train_data/y_train.pkl','wb') as file:
 
 with open('train_data/y_test.pkl','wb') as file:
     pkl.dump(y_test, file)
+
+# preparing frame for predictions
+pred_frame = x_train.iloc[:1,:].copy()
+pred_frame.replace(pred_frame.iloc[0], 0, inplace=True)
+
+with open('/models/temp/pred_frame.pkl','wb') as file:
+    pkl.dump(pred_frame, file)

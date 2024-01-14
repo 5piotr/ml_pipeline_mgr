@@ -54,5 +54,6 @@ create table apt_log(
     data_raw int,
     data_clean int,
     ann_r2 float,
-    xgb_r2 float
+    xgb_r2 float,
+    prod tinyint
 );
