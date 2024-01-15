@@ -2,9 +2,11 @@ import os
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operators.email import EmailOperator
 
 from src.log_run import log
 from src.update_models import update
+from src.generate_email import email
 
 default_args = {
     'owner':'piotr',
@@ -34,4 +36,11 @@ with DAG(
         python_callable=update
     )
 
-    task1 >> task2
+    task3 = EmailOperator(
+        task_id='send_result_email',
+        to=os.environ['PIOTR_EMAIL'],
+        subject='Airflow Alert',
+        html_content=email()
+    )
+
+    task1 >> task2 >> task3

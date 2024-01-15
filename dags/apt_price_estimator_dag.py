@@ -2,6 +2,7 @@ import os
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operators.email import EmailOperator
 
 from src.get_auction_list import get_list
 from src.get_auction_details import get_details
@@ -24,20 +25,27 @@ with DAG(
     schedule='0 3 2 * *',
     catchup=False
 ) as dag:
+    
+    task1 = EmailOperator(
+        task_id='send_start_email',
+        to=os.environ['PIOTR_EMAIL'],
+        subject='Airflow Alert',
+        html_content='apartment_price_estimator_v2 started running'
+    )
 
-    task1 = PythonOperator(
+    task2 = PythonOperator(
         task_id='get_auction_list',
         python_callable=get_list
     )
 
-    task2 = PythonOperator(
+    task3 = PythonOperator(
         task_id='get_auction_details',
         python_callable=get_details
     )
 
-    task3 = PythonOperator(
+    task4 = PythonOperator(
         task_id='clean_data',
         python_callable=clean
     )
 
-    task1 >> task2 >> task3
+    task1 >> task2 >> task3 >> task4
