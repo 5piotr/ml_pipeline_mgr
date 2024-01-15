@@ -4,6 +4,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 
 from src.log_run import log
+from src.update_models import update
 
 default_args = {
     'owner':'piotr',
@@ -28,4 +29,9 @@ with DAG(
         python_callable=log
     )
 
-    task1
+    task2 = PythonOperator(
+        task_id='update_models',
+        python_callable=update
+    )
+
+    task1 >> task2
