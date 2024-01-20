@@ -22,7 +22,7 @@ with DAG(
     dag_id='test_logic',
     description='test logic and sending mail',
     start_date=datetime(2024, 1, 1),
-    schedule='0 3 2 * *',
+    schedule=None,
     catchup=False
 ) as dag:
 

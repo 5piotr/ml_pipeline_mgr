@@ -1,7 +1,6 @@
 import os
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.python import PythonOperator
 from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
 
@@ -18,7 +17,7 @@ default_args = {
 
 with DAG(
     default_args=default_args,
-    dag_id='test_trainer_dag',
+    dag_id='test_trainer',
     description='testing trainer',
     start_date=datetime(2024, 1, 1),
     schedule=None,
