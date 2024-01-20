@@ -40,12 +40,12 @@ def get_df_from_mysql(query):
         if engine:
             engine.dispose()
 
-def load_train_test():
+def load_train_test(paht):
 
-    x_train = load_pkl('/code/train_data/x_train.pkl')
-    y_train = load_pkl('/code/train_data/y_train.pkl')
-    x_test = load_pkl('/code/train_data/x_test.pkl')
-    y_test = load_pkl('/code/train_data/y_test.pkl')
+    x_train = load_pkl(f'{paht}x_train.pkl')
+    y_train = load_pkl(f'{paht}y_train.pkl')
+    x_test = load_pkl(f'{paht}x_test.pkl')
+    y_test = load_pkl(f'{paht}y_test.pkl')
 
     for frame in [x_train,x_test]:
         frame.drop('date', axis=1, inplace=True)

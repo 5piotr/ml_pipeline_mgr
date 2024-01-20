@@ -1,10 +1,9 @@
 import pandas as pd
-import pickle as pkl
 from sklearn.model_selection import train_test_split
 import lib
 
 # load data
-data = lib.load_pkl('/code/train_data/apt_details_cls.pkl')
+data = lib.load_pkl('train_data/apt_details_cls.pkl')
 
 # removing unnecessary columns
 to_drop = ['city','district','voivodeship','localization_y','localization_x','price_of_sqm','url','offer_type']
@@ -36,4 +35,4 @@ lib.save_pkl(y_test, 'train_data/y_test.pkl')
 pred_frame = x_train.iloc[:1,:].copy()
 pred_frame.replace(pred_frame.iloc[0], 0, inplace=True)
 
-lib.save_pkl(pred_frame, '/models/temp/pred_frame.pkl')
+lib.save_pkl(pred_frame, '../models/temp/pred_frame.pkl')
