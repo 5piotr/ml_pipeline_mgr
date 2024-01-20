@@ -1,20 +1,51 @@
+import os
 import pickle as pkl
 import numpy as np
+import pandas as pd
+from sqlalchemy import create_engine
 from sklearn.metrics import mean_squared_error, mean_absolute_error ,r2_score
+
+def load_pkl(path):
+    with open(path,'rb') as file:
+        data = pkl.load(file)
+    return data
+
+def save_pkl(data, path):
+    with open(path,'wb') as file:
+        pkl.dump(data, file)
+
+def save_txt(txt, path):
+    with open(path,'w') as file:
+        file.write(txt)
+
+def get_df_from_mysql(query):
+    try:
+        username = 'piotr'
+        password = os.environ['MYSQL_PASSWORD']
+        host = os.environ['PAPUGA_IP']
+        db_name = 'apt_db'
+        db_url = f'mysql+mysqlconnector://{username}:{password}@{host}/{db_name}'
+
+        engine = create_engine(db_url)
+        with engine.connect() as conn:
+            data = pd.read_sql_query(sql=query, con=conn, index_col='id')
+
+        return data
+    
+    except Exception as e:
+        print(e)
+        raise Exception
+    
+    finally:
+        if engine:
+            engine.dispose()
 
 def load_train_test():
 
-    with open('/code/train_data/x_train.pkl','rb') as file:
-        x_train = pkl.load(file)
-
-    with open('/code/train_data/y_train.pkl','rb') as file:
-        y_train = pkl.load(file)
-
-    with open('/code/train_data/x_test.pkl','rb') as file:
-        x_test = pkl.load(file)
-
-    with open('/code/train_data/y_test.pkl','rb') as file:
-        y_test = pkl.load(file)
+    x_train = load_pkl('/code/train_data/x_train.pkl')
+    y_train = load_pkl('/code/train_data/y_train.pkl')
+    x_test = load_pkl('/code/train_data/x_test.pkl')
+    y_test = load_pkl('/code/train_data/y_test.pkl')
 
     for frame in [x_train,x_test]:
         frame.drop('date', axis=1, inplace=True)

@@ -2,7 +2,6 @@ import pickle as pkl
 from sklearn.preprocessing import MinMaxScaler
 import tensorflow as tf
 from tensorflow import keras
-
 import lib
 
 x_train, x_test, y_train, y_test = lib.load_train_test()
@@ -11,8 +10,7 @@ scaler = MinMaxScaler()
 x_train= scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
 
-with open('/models/temp/scaler.pkl','wb') as file:
-    pkl.dump(scaler, file)
+lib.save_pkl(scaler, '/models/temp/scaler.pkl')
 
 def create_model():
     model = tf.keras.Sequential([
@@ -41,5 +39,4 @@ predictions = model.predict(x_test, verbose=0)
 
 r2 = lib.evaluate_pred(y_test, predictions)
 
-with open('/models/temp/ann.r2','w') as file:
-    file.write(str(r2))
+lib.save_txt(str(r2), '/models/temp/ann.r2')

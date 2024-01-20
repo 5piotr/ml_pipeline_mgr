@@ -1,5 +1,4 @@
 from xgboost import XGBRegressor
-
 import lib
 
 x_train, x_test, y_train, y_test = lib.load_train_test()
@@ -19,5 +18,4 @@ predictions = model.predict(x_test)
 
 r2 = lib.evaluate_pred(y_test, predictions)
 
-with open('/models/temp/xgb.r2','w') as file:
-    file.write(str(r2))
+lib.save_txt(str(r2), '/models/temp/xgb.r2')

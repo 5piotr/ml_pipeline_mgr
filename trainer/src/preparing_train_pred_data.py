@@ -1,9 +1,10 @@
 import pandas as pd
 import pickle as pkl
 from sklearn.model_selection import train_test_split
+import lib
 
-with open('/code/train_data/apt_details_cls.pkl','rb') as file:
-    data = pkl.load(file)
+# load data
+data = lib.load_pkl('/code/train_data/apt_details_cls.pkl')
 
 # removing unnecessary columns
 to_drop = ['city','district','voivodeship','localization_y','localization_x','price_of_sqm','url','offer_type']
@@ -25,23 +26,14 @@ y = data.price
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
 
-
 # save data
-with open('train_data/x_train.pkl','wb') as file:
-    pkl.dump(x_train, file)
-
-with open('train_data/x_test.pkl','wb') as file:
-    pkl.dump(x_test, file)
-
-with open('train_data/y_train.pkl','wb') as file:
-    pkl.dump(y_train, file)
-
-with open('train_data/y_test.pkl','wb') as file:
-    pkl.dump(y_test, file)
+lib.save_pkl(x_train, 'train_data/x_train.pkl')
+lib.save_pkl(x_test, 'train_data/x_test.pkl')
+lib.save_pkl(y_train, 'train_data/y_train.pkl')
+lib.save_pkl(y_test, 'train_data/y_test.pkl')
 
 # preparing frame for predictions
 pred_frame = x_train.iloc[:1,:].copy()
 pred_frame.replace(pred_frame.iloc[0], 0, inplace=True)
 
-with open('/models/temp/pred_frame.pkl','wb') as file:
-    pkl.dump(pred_frame, file)
+lib.save_pkl(pred_frame, '/models/temp/pred_frame.pkl')

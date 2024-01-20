@@ -1,33 +1,16 @@
-import os
-from sqlalchemy import create_engine
-import pandas as pd
-import pickle as pkl
 from sklearn.cluster import KMeans
+import lib
 
 query = '''
     select * from apt_details
     where date = (select max(date) from apt_details)
     '''
 
-username = 'piotr'
-password = os.environ['MYSQL_PASSWORD']
-host = os.environ['PAPUGA_IP']
-db_name = 'apt_db'
-db_url = f'mysql+mysqlconnector://{username}:{password}@{host}/{db_name}'
-
-engine = create_engine(db_url)
-
-with engine.connect() as conn:
-    data = pd.read_sql_query(sql=query, con=conn, index_col='id')
-
-engine.dispose()
+data = lib.get_df_from_mysql(query)
 
 X = data.loc[:,['localization_y','localization_x']].values
 kmeans = KMeans(n_clusters = 600, n_init='auto', random_state = 0).fit(X)
 data['cluster'] = kmeans.labels_
 
-with open('train_data/apt_details_cls.pkl','wb') as file:
-    pkl.dump(data, file)
-
-with open('/models/temp/kmeans.pkl','wb') as file:
-    pkl.dump(kmeans, file)
+lib.save_pkl(data, 'train_data/apt_details_cls.pkl')
+lib.save_pkl(kmeans, '../models/temp/kmeans.pkl')
