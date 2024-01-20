@@ -20,14 +20,14 @@ def get_list():
     # iterating over flat size ranges
     for mi,ma in flat_size:
         url = f'https://gratka.pl/nieruchomosci/mieszkania?powierzchnia-w-m2:min={mi}&powierzchnia-w-m2:max={ma}'
-        page = requests.get(url)
+        page = requests.get(url, timeout=30)
         soup = BeautifulSoup(page.content, 'html.parser')
         pagination = soup.find_all(class_="pagination__input")
 
         # iterating over result pages
         for i in range(int(pagination[0]["max"])):
             url = f'https://gratka.pl/nieruchomosci/mieszkania?page={i+1}&powierzchnia-w-m2:min={mi}&powierzchnia-w-m2:max={ma}'
-            page = requests.get(url)
+            page = requests.get(url, timeout=30)
             soup = BeautifulSoup(page.content, 'html.parser')
             links = soup.find_all(class_="teaserUnified")
 

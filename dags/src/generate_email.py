@@ -18,12 +18,15 @@ def email():
             cursor.execute(query)
             result = cursor.fetchall()
 
-    auction_urls = result[0][0]
-    data_raw = result[0][1]
-    data_clean = result[0][2]
-    ann_r2 = result[0][3]
-    xgb_r2 = result[0][4]
-    prod = result[0][5]
+    try:
+        auction_urls = result[0][0]
+        data_raw = result[0][1]
+        data_clean = result[0][2]
+        ann_r2 = result[0][3]
+        xgb_r2 = result[0][4]
+        prod = result[0][5]
+    except:
+        return -1
 
     email = f'''
     apartment_price_estimator_v2 finished running:

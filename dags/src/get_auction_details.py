@@ -156,7 +156,7 @@ def get_details():
 
     for url in auction_list:
         try:
-            page = requests.get(url)
+            page = requests.get(url, timeout=30)
             soup = BeautifulSoup(page.text, 'html.parser')
         except:
             continue

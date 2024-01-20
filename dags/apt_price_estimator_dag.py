@@ -6,7 +6,6 @@ from airflow.operators.email import EmailOperator
 from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
 
-
 from src.get_auction_list import get_list
 from src.get_auction_details import get_details
 from src.clean_data import clean
@@ -27,7 +26,7 @@ with DAG(
     default_args=default_args,
     dag_id='apt_price_estimator',
     description='get and transform data, train models',
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2023, 12, 16),
     schedule='0 3 16 * *',
     catchup=False
 ) as dag:
