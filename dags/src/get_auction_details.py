@@ -134,60 +134,57 @@ def get_details():
     from apt_urls
     '''
 
-    conn = connector.connect(
+    with connector.connect(
         host = 'mysql_apt_db',
         user = 'piotr',
         password = os.environ['MYSQL_PASSWORD'],
-        database = 'apt_db')
+        database = 'apt_db') as conn:
     
-    with conn.cursor() as cursor:
-        cursor.execute(query1)
-        result1 = cursor.fetchall()
-
-    auction_list = [row[0] for row in result1]
-
-    with conn.cursor() as cursor:    
-        cursor.execute(query2)
-        result2 = cursor.fetchall()
-
-    date = result2[0][0]
-
-    i = 0
-
-    for url in auction_list:
-        try:
-            page = requests.get(url, timeout=30)
-            soup = BeautifulSoup(page.text, 'html.parser')
-        except:
-            continue
-
-        city, voivodeship, district = get_location(soup)
-        localization_x, localization_y = get_coordinates(soup)
-        market, offer_type = get_market_offer(soup)
-        area, rooms, floor, floors, build_yr = get_parameters(soup)
-        price = get_price(soup)
-
-        insert_single_record = '''
-        insert into apt_details_raw
-        (date, city, district, voivodeship, localization_y, localization_x, market, offer_type,
-            area, rooms, floor, floors, build_yr, price, url)
-        values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        '''
-        record = (date, city, district, voivodeship, localization_y, localization_x, market,\
-                  offer_type, area, rooms, floor, floors, build_yr, price, url)
-
         with conn.cursor() as cursor:
-            cursor.execute(insert_single_record, record)
-            conn.commit()
+            cursor.execute(query1)
+            result1 = cursor.fetchall() 
+            cursor.execute(query2)
+            result2 = cursor.fetchall()
 
-        i += 1
-        if i%500 == 0 or i == len(auction_list):
-            completion = round(i/len(auction_list)*100,2)
-            warsaw_tz = pytz.timezone('Europe/Warsaw') 
-            timestamp = datetime.datetime.now(warsaw_tz).strftime('%H:%M:%S')
-            print(f'PIOTR: list completion {completion}% at {timestamp}')
+        auction_list = [row[0] for row in result1]
+        date = result2[0][0]
 
-    conn.close()
+        i = 0
+
+        for url in auction_list:
+            try:
+                page = requests.get(url, timeout=30)
+                soup = BeautifulSoup(page.text, 'html.parser')
+            except:
+                continue
+
+            city, voivodeship, district = get_location(soup)
+            localization_x, localization_y = get_coordinates(soup)
+            market, offer_type = get_market_offer(soup)
+            area, rooms, floor, floors, build_yr = get_parameters(soup)
+            price = get_price(soup)
+
+            record = (date, city, district, voivodeship, localization_y, localization_x, market,\
+                    offer_type, area, rooms, floor, floors, build_yr, price, url)
+
+            insert_single_record = f'''
+            insert into apt_details_raw
+            (date, city, district, voivodeship, localization_y, localization_x, market, offer_type,
+                area, rooms, floor, floors, build_yr, price, url)
+            values ({('%s,' * len(record))[:-1]})
+            '''
+
+
+            with conn.cursor() as cursor:
+                cursor.execute(insert_single_record, record)
+                conn.commit()
+
+            i += 1
+            if i%500 == 0 or i == len(auction_list):
+                completion = round(i/len(auction_list)*100,2)
+                warsaw_tz = pytz.timezone('Europe/Warsaw') 
+                timestamp = datetime.datetime.now(warsaw_tz).strftime('%H:%M:%S')
+                print(f'PIOTR: list completion {completion}% at {timestamp}')
 
 if __name__=='__main__':
     get_details()
