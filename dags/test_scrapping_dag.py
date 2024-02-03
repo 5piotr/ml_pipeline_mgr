@@ -35,7 +35,8 @@ with DAG(
 
     task2 = PythonOperator(
         task_id='get_auction_list',
-        python_callable=get_list
+        python_callable=get_list,
+        op_kwargs={'flat_size': [[0,15]]}
     )
 
     task3 = PythonOperator(
