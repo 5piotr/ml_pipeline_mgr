@@ -1,24 +1,17 @@
 import os
 import requests
-import datetime
 from mysql import connector
 from bs4 import BeautifulSoup
-import pytz
-from src.lib import test_import
+from .lib import get_current_timestamp
 
 FLAT_SIZE = [[0,30],[30,35],[35,37],[37,40],[40,42],[42,45],[45,47],[47,50],
              [50,52],[52,55],[55,57],[57,60],[60,62],[62,65],[65,70],[70,75],
              [75,80],[80,90],[90,100],[100,120],[120,1000]]
 
-TEST_FLAT_SIZE = [[0,15]]
-
 def get_list(host='mysql_apt_db',
              flat_size=FLAT_SIZE):
 
-    print(test_import())
-
-    warsaw_tz = pytz.timezone('Europe/Warsaw') 
-    timestamp = datetime.datetime.now(warsaw_tz).strftime('%Y-%m-%d_%H:%M:%S')
+    timestamp = get_current_timestamp()
     auction_list = []
 
     # iterating over flat size ranges
@@ -58,4 +51,4 @@ def get_list(host='mysql_apt_db',
 
 if __name__=='__main__':
     get_list(host='localhost',
-             flat_size=TEST_FLAT_SIZE)
+             flat_size=[[0,15]])

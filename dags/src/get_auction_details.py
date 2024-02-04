@@ -1,10 +1,9 @@
 import os
 import requests
 import re
-import datetime
-import pytz
 from bs4 import BeautifulSoup
 from mysql import connector
+from .lib import get_current_timestamp
 
 def get_location(soup):
     try:
@@ -182,8 +181,7 @@ def get_details():
             i += 1
             if i%500 == 0 or i == len(auction_list):
                 completion = round(i/len(auction_list)*100,2)
-                warsaw_tz = pytz.timezone('Europe/Warsaw') 
-                timestamp = datetime.datetime.now(warsaw_tz).strftime('%H:%M:%S')
+                timestamp = get_current_timestamp()
                 print(f'PIOTR: list completion {completion}% at {timestamp}')
 
 if __name__=='__main__':
