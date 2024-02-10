@@ -1,8 +1,7 @@
 import os
-import datetime
-import pytz
 import shutil
 from mysql import connector
+from .lib import get_current_timestamp
 
 def update():
 
@@ -23,8 +22,7 @@ def update():
 
     prod = result[0][0]
 
-    warsaw_tz = pytz.timezone('Europe/Warsaw') 
-    timestamp = datetime.datetime.now(warsaw_tz).strftime('%Y-%m-%d')
+    timestamp = get_current_timestamp()
 
     if prod==1:
         with open('/models/update.date', 'w') as file:
