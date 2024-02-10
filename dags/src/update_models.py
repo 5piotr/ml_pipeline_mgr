@@ -13,10 +13,10 @@ def update():
     '''
 
     with connector.connect(
-        host = 'mysql_apt_db',
+        host = 'mysql_airflow_db',
         user = 'piotr',
         password = os.environ['MYSQL_PASSWORD'],
-        database = 'apt_db') as conn:
+        database = 'airflow_db') as conn:
         with conn.cursor() as cursor:
             cursor.execute(query)
             result = cursor.fetchall()

@@ -1,12 +1,12 @@
 --@block
-create table apt_urls(
+create table airflow_db.apt_urls(
     id int primary key auto_increment,
     date timestamp,
     url varchar(255)
 );
 
 --@block
-create table apt_details_raw(
+create table airflow_db.apt_details_raw(
     id int primary key auto_increment,
     date timestamp,
     city varchar(255),
@@ -26,7 +26,7 @@ create table apt_details_raw(
 );
 
 --@block
-create table apt_details(
+create table airflow_db.apt_details(
     id int primary key auto_increment,
     date timestamp,
     city varchar(255),
@@ -47,7 +47,7 @@ create table apt_details(
 );
 
 --@block
-create table apt_log(
+create table airflow_db.apt_log(
     id int primary key auto_increment,
     date timestamp,
     auction_urls int,

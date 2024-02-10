@@ -8,7 +8,7 @@ FLAT_SIZE = [[0,30],[30,35],[35,37],[37,40],[40,42],[42,45],[45,47],[47,50],
              [50,52],[52,55],[55,57],[57,60],[60,62],[62,65],[65,70],[70,75],
              [75,80],[80,90],[90,100],[100,120],[120,1000]]
 
-def get_list(host='mysql_apt_db',
+def get_list(host='mysql_airflow_db',
              flat_size=FLAT_SIZE):
 
     timestamp = get_current_timestamp()
@@ -43,7 +43,7 @@ def get_list(host='mysql_apt_db',
         host = host,
         user = 'piotr',
         password = os.environ['MYSQL_PASSWORD'],
-        database = 'apt_db'
+        database = 'airflow_db'
     ) as conn:
         with conn.cursor() as cursor:
             cursor.executemany(insert_multiple_records, auction_list)

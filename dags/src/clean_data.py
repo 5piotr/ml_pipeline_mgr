@@ -12,8 +12,8 @@ def clean():
 
     username = 'piotr'
     password = os.environ['MYSQL_PASSWORD']
-    host = 'mysql_apt_db'
-    db_name = 'apt_db'
+    host = 'mysql_airflow_db'
+    db_name = 'airflow_db'
     db_url = f'mysql+mysqlconnector://{username}:{password}@{host}/{db_name}'
 
     engine = create_engine(db_url)

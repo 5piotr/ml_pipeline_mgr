@@ -15,10 +15,10 @@ def get_value_from_file(file_path):
 def log():
 
     with connector.connect(
-        host = 'mysql_apt_db',
+        host = 'mysql_airflow_db',
         user = 'piotr',
         password = os.environ['MYSQL_PASSWORD'],
-        database = 'apt_db') as conn:
+        database = 'airflow_db') as conn:
 
         query1 = '''
         select max(date)
