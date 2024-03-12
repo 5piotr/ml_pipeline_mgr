@@ -33,6 +33,7 @@ lib.save_pkl(y_test, 'train_data/y_test.pkl')
 
 # preparing frame for predictions
 pred_frame = x_train.iloc[:1,:].copy()
+pred_frame.drop(columns='date', inplace=True)
 pred_frame.replace(pred_frame.iloc[0], 0, inplace=True)
 
 lib.save_pkl(pred_frame, '../models/temp/pred_frame.pkl')
