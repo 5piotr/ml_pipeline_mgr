@@ -35,7 +35,7 @@ with DAG(
         task_id='send_start_email',
         to=os.environ['PIOTR_EMAIL'],
         subject='Airflow Alert',
-        html_content='apartment_price_estimator_v2 started running'
+        html_content='apt_price_estimator started running'
     )
 
     task2 = PythonOperator(

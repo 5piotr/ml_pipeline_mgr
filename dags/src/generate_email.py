@@ -29,7 +29,7 @@ def email():
         return -1
 
     email = f'''
-    apartment_price_estimator_v2 finished running:
+    apt_price_estimator finished running:
     <ul>
     <li>auction urls: {auction_urls}</li>
     <li>data_raw: {data_raw}</li>
