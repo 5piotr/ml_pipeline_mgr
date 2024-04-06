@@ -28,8 +28,9 @@ def update():
         with open('/models/update.date', 'w') as file:
             file.write(timestamp)
 
-        for model in ['ann.keras','kmeans.pkl','pred_frame.pkl','scaler.pkl','xgb.json']:
-            shutil.copy2(f'/models/temp/{model}', '/models')
+        for element in ['ann.keras','kmeans.pkl','pred_frame.pkl','scaler.pkl',
+                      'xgb.json','ann.r2','xgb.r2']:
+            shutil.copy2(f'/models/temp/{element}', '/models')
 
 if __name__=='__main__':
     update()
