@@ -9,3 +9,5 @@ train_data/
 !train_data/.gitkeep
 
 db_test.sql
+
+.env
