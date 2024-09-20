@@ -5,123 +5,147 @@ from bs4 import BeautifulSoup
 from mysql import connector
 from .lib import get_current_timestamp
 
+voivodeships = [
+'dolnośląskie',
+'kujawsko-pomorskie',
+'łódzkie',
+'lubelskie',
+'lubuskie',
+'małopolskie',
+'mazowieckie',
+'opolskie',
+'podkarpackie',
+'podlaskie',
+'pomorskie',
+'śląskie',
+'świętokrzyskie',
+'warmińsko-mazurskie',
+'warmińsko-mazurskie',
+'wielkopolskie',
+'zachodniopomorskie'
+]
+
 def get_location(soup):
     try:
-        location = soup.find_all('span',class_="offerLocation__region")
-    except:
-        return None, None, None
-    
-    try:
-        city = location[0].text.strip().replace(',','')
-    except:
-        city = None
-    
-    try:
-        voivodeship = location[-1].text.strip().replace(',','')
+        location = soup.find_all('ul', class_="aPchu6")[0].find_all('li')
+        if location[2].get_text() not in voivodeships:
+            voivodeship = 'zagranica'
+            city = location[3].get_text()
+            district = location[2].get_text()
+
+            return city, voivodeship, district
+
+        voivodeship = location[2].get_text()
+        if len(location)==4:
+            city = location[3].get_text()
+            district = None
+        elif location[3].get_text().endswith('(pow.)'):
+            city = location[4].get_text().split(' ')[0]
+            district = None
+        else:        
+            city = location[3].get_text()
+            prefixes = ['ul.','al.','Os.','pl.','rondo']
+            counter = 0
+            for prefix in prefixes:
+                if location[4].get_text().startswith(prefix):
+                    counter += 1
+                    break
+            if counter > 0:
+                district = None
+            else:
+                district = location[4].get_text()
     except:
         voivodeship = None
-
-    if len(location) == 3:
-        try:
-            district = location[1].text.strip().replace(',','')
-        except:
-            district = None
-    else:
+        city = None
         district = None
 
     return city, voivodeship, district
 
-def get_coordinates(soup):
+def get_script(soup):
     try:
-        scripts = soup.find(id='leftColumn').find_all('script')
+        script = soup.find('script', id='__NUXT_DATA__')
     except:
-        return None, None
-    
-    try:
-        localization_y = re.findall(r'(\"\w+szerokosc.*?\"):(-?\d*[.\d]*)', scripts[4].contents[0])[0][1]
-    except:
-        try:
-            localization_y = re.findall(r'(\"\w+szerokosc.*?\"):(-?\d*[.\d]*)', scripts[5].contents[0])[0][1]
-        except:
-            localization_y = None
+        script = []
 
+    return script
+
+def get_coordinates(script):
     try:
-        localization_x = re.findall(r'(\"\w+dlugosc.*?\"):(-?\d*[.\d]*)', scripts[4].contents[0])[0][1]
+        result = re.findall(r',(\d{2}\.\d+),(\d{2}\.\d+),', script.get_text())[-1]
+        localization_y = result[0]
+        localization_x = result[1]
     except:
-        try:
-            localization_x = re.findall(r'(\"\w+dlugosc.*?\"):(-?\d*[.\d]*)', scripts[5].contents[0])[0][1]
-        except:
-            localization_x = None
+        localization_y = None
+        localization_x = None
 
     return localization_x, localization_y
 
-def get_market_offer(soup):
+def get_market(script):
     try:
-        scripts = soup.find('body').find_all('script')  
+        market = re.findall(r'\\\"rynek\\\":\\\"(\w+)', script.get_text())[-1]
     except:
-        return None, None
+        market = None 
 
-    try:
-        market = re.findall(r'(\"rynek\"):\"(.*?)\"', scripts[18].contents[0])[0][1]
-    except:
-        market = None
+    return market
 
+def get_offer_type(script):
     try:
-        offer_type = re.findall(r'(\"typ_oferty\"):\"(.*?)\"', scripts[18].contents[0])[0][1]
+        offer_type = re.findall(r'\\\"typoferty\\\":\\\"(\w+)', script.get_text())[-1]
     except:
         offer_type = None
 
-    return market, offer_type
+    return offer_type
 
-def get_parameters(soup):
+def get_area(script):
     try:
-        parameters = soup.find_all('ul',class_="parameters__singleParameters")
-    except:
-        return None, None, None, None, None
-    
-    try:
-        area = re.findall(r'(Powierzchnia).*\n(.*)m', parameters[0].text)
-        area = area[0][1].replace(' ','')
+        area = re.findall(r'\"Pow\. całkowita\",\"(\d*,?\d*)', script.get_text())[-1]
         area = area.replace(',','.')
     except:
         area = None
 
+    return area
+
+def get_rooms(script):
     try:
-        rooms = re.findall(r'(Liczba pokoi).*\n(.*)', parameters[0].text)
-        rooms = rooms[0][1]
+        rooms = re.findall(r'\\\"number_of_rooms\\\":(\d*)', script.get_text())[-1]
     except:
         rooms = None
 
+    return rooms
+
+def get_floors(soup):
     try:
-        floor = re.findall(r'(Piętro).*\n(.*)', parameters[0].text)
-        floor = floor[0][1]
+        floo = soup.find_all('span', class_="_2Xg-2y")[2].get_text().split()[-1]
+        if '/' in floo:
+            li = floo.split('/')
+            floor = li[0]
+            floors = li[1]
+        else:
+            floor = floo
+            floors = None
     except:
         floor = None
-
-    try:
-        floors = re.findall(r'(Liczba pięter w budynku).*\n(.*)', parameters[0].text)
-        floors = floors[0][1]
-    except:
         floors = None
 
+    return floor, floors
+
+def get_buils_yr(script):
     try:
-        build_yr = re.findall(r'(Rok budowy).*\n(.*)', parameters[0].text)
-        build_yr = build_yr[0][1]
+        build_yr = re.findall(r'\"Rok budowy\",\"(\d{4})', script.get_text())[-1]
     except:
         build_yr = None
 
-    return area, rooms, floor, floors, build_yr
+    return build_yr
 
-def get_price(soup):
+def get_price(script):
     try:
-        price_info = soup.find_all('span',class_="priceInfo__value")
-        price = price_info[0].text.replace(' ','').replace('\n','').replace(',','.')[:-2]
+        price = re.findall(r'\\\"price\\\":(\d*)', script.get_text())[-1]
     except:
-        price = None
+        price = 'Zapytajoce'
 
     return price
 
-def get_details():
+def get_details(host='mysql_airflow_db'):
 
     query1 = '''
     select url 
@@ -134,7 +158,7 @@ def get_details():
     '''
 
     with connector.connect(
-        host = 'mysql_airflow_db',
+        host = host,
         user = 'piotr',
         password = os.environ['MYSQL_PASSWORD'],
         database = 'airflow_db') as conn:
@@ -157,11 +181,17 @@ def get_details():
             except:
                 continue
 
+            script = get_script(soup)
+
             city, voivodeship, district = get_location(soup)
-            localization_x, localization_y = get_coordinates(soup)
-            market, offer_type = get_market_offer(soup)
-            area, rooms, floor, floors, build_yr = get_parameters(soup)
-            price = get_price(soup)
+            localization_x, localization_y = get_coordinates(script)
+            market = get_market(script)
+            offer_type = get_offer_type(script)
+            area = get_area(script)
+            rooms = get_rooms(script)
+            floor, floors = get_floors(soup)
+            build_yr = get_buils_yr(script)           
+            price = get_price(script)
 
             record = (date, city, district, voivodeship, localization_y, localization_x, market,\
                     offer_type, area, rooms, floor, floors, build_yr, price, url)
@@ -185,4 +215,4 @@ def get_details():
                 print(f'PIOTR: list completion {completion}% at {timestamp}')
 
 if __name__=='__main__':
-    get_details()
+    get_details(host='localhost')

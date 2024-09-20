@@ -4,9 +4,13 @@ from mysql import connector
 from bs4 import BeautifulSoup
 from .lib import get_current_timestamp
 
-FLAT_SIZE = [[0,30],[30,35],[35,37],[37,40],[40,42],[42,45],[45,47],[47,50],
-             [50,52],[52,55],[55,57],[57,60],[60,62],[62,65],[65,70],[70,75],
-             [75,80],[80,90],[90,100],[100,120],[120,1000]]
+FLAT_SIZE = [[0, 25]] \
+            + [[25, 30]] \
+            + [[a, a+1] for a in range(30, 40, 1)] \
+            + [[a, a+2] for a in range(40, 70, 2)] \
+            + [[a, a+4] for a in range(70, 100, 4)] \
+            + [[100, 150]] \
+            + [[151, 1000]]
 
 def get_list(host='mysql_airflow_db',
              flat_size=FLAT_SIZE):
@@ -16,21 +20,21 @@ def get_list(host='mysql_airflow_db',
 
     # iterating over flat size ranges
     for mi,ma in flat_size:
-        url = f'https://gratka.pl/nieruchomosci/mieszkania?powierzchnia-w-m2:min={mi}&powierzchnia-w-m2:max={ma}'
+        url = f'https://gratka.pl/nieruchomosci/mieszkania?location[map]=1&location[map_bounds]=55.0,24.0:49.0,14.0&powierzchnia-w-m2:max={ma}&powierzchnia-w-m2:min={mi}&sort=relevance'
         page = requests.get(url, timeout=30)
         soup = BeautifulSoup(page.content, 'html.parser')
-        pagination = soup.find_all(class_="pagination__input")
+        pagination = soup.find_all(class_="iVM-2V Vr8BLu C-LDOy _2Mk82C")
 
         # iterating over result pages
-        for i in range(int(pagination[0]["max"])):
-            url = f'https://gratka.pl/nieruchomosci/mieszkania?page={i+1}&powierzchnia-w-m2:min={mi}&powierzchnia-w-m2:max={ma}'
+        for i in range(int(pagination[3].get_text())):
+            url = f'https://gratka.pl/nieruchomosci/mieszkania?page={i+1}&location[map]=1&location[map_bounds]=55.0,24.0:49.0,14.0&powierzchnia-w-m2:max={ma}&powierzchnia-w-m2:min={mi}&sort=relevance'
             page = requests.get(url, timeout=30)
             soup = BeautifulSoup(page.content, 'html.parser')
-            links = soup.find_all(class_="teaserUnified")
+            links = soup.find_all(class_="card__outer")
 
             # iterating over apartment links
             for link in links:
-                auction_list.append((timestamp, link['data-href']))
+                auction_list.append((timestamp, f'https://gratka.pl{link.a.get("href")}'))
 
         print(f'PIOTR: mi={mi} ma={ma} complete, auction list has now {len(auction_list)} urls')
 
@@ -51,4 +55,4 @@ def get_list(host='mysql_airflow_db',
 
 if __name__=='__main__':
     get_list(host='localhost',
-             flat_size=[[0,15]])
+             flat_size=[[0,25]])
