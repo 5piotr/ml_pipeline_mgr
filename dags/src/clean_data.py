@@ -27,10 +27,13 @@ def clean():
     data_raw.market.replace(['pierwotny','wtorny'], ['primary_market','aftermarket'], inplace=True)
 
     # removing foreign locations
-    data_raw.drop(data_raw[data_raw.voivodeship=='zagranica'].index, inplace=True)
+    data_raw.drop(index=data_raw[data_raw.voivodeship=='zagranica'].index, axis=0, inplace=True)
 
     # removing data with no price and changig data type
     data_raw.drop(index=data_raw[data_raw.price=='Zapytajoce'].index, axis=0, inplace=True)
+
+    # removing offers for rent
+    data_raw.drop(index=data_raw[data_raw.offer_type=='wynajem'].index, axis=0, inplace=True)
 
     # remove records with missing data
     data_raw.dropna(subset=['price','localization_y','localization_x','area'], axis=0, inplace=True)
@@ -38,15 +41,8 @@ def clean():
     data_raw.dropna(subset=['build_yr'], axis=0, inplace=True)
     data_raw.dropna(subset=['floors'], axis=0, inplace=True)
 
-    # cleaning categorical data and changing data type
-    data_raw.rooms.replace('więcej niż 8', '8', inplace=True)
-
-    data_raw.floor.replace(['niski parter','parter'], '0', inplace=True)
-    data_raw.floor.replace('powyżej 30', '30', inplace=True)
-    data_raw.drop(data_raw[data_raw.floor=='poddasze'].index, axis=0, inplace=True)
-    data_raw.drop(data_raw[data_raw.floor=='piwnica mieszkalna/suterena'].index, axis=0, inplace=True)
-
-    data_raw.floors.replace(['0 (parter)','powyżej 30'], ['0','30'], inplace=True)
+    # cleaning categorical data
+    data_raw.floor.replace('parter', '0', inplace=True)
 
     # changing data types
     data_raw.localization_x = data_raw.localization_x.astype('float')
@@ -80,9 +76,6 @@ def clean():
     for key in outliers_dict.keys():
         data_raw.drop(data_raw[data_raw[key] < outliers_dict[key][0]].index, inplace = True)
         data_raw.drop(data_raw[data_raw[key] > outliers_dict[key][1]].index, inplace = True)
-
-    # removing eaven location coordinates which have been identified as false
-    data_raw.drop(data_raw[(data_raw.localization_x%1==0) | (data_raw.localization_y%1==0)].index, inplace=True)
 
     print(f'PIOTR: processed data shape: {data_raw.shape}')
 
