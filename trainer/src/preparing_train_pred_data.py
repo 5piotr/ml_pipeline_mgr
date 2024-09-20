@@ -16,7 +16,7 @@ for column in ['rooms','floor','floors','cluster']:
 data = pd.get_dummies(data, drop_first=False, dtype='uint8')
 
 # removing first dummy columns
-to_drop = ['market_aftermarket','rooms_1','floor_0','floors_0','cluster_0']
+to_drop = ['market_aftermarket','rooms_1','floor_0','floors_1','cluster_0']
 data.drop(to_drop, axis=1, inplace=True)
 
 # train test split
