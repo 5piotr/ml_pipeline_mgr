@@ -30,13 +30,14 @@ with DAG(
         task_id='send_start_email',
         to=os.environ['PIOTR_EMAIL'],
         subject='Airflow Alert',
-        html_content='apartment_price_estimator_v2 started running'
+        html_content='apt_price_estimator TEST started running'
     )
 
     task2 = PythonOperator(
         task_id='get_auction_list',
+        retries=1,
         python_callable=get_list,
-        op_kwargs={'flat_size': [[0,15]]}
+        # op_kwargs={'flat_size': [[0,20]]}
     )
 
     task3 = PythonOperator(

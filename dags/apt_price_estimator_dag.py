@@ -40,6 +40,7 @@ with DAG(
 
     task2 = PythonOperator(
         task_id='get_auction_list',
+        retries=1,
         python_callable=get_list
     )
 
