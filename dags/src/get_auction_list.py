@@ -23,10 +23,15 @@ def get_list(host='mysql_airflow_db',
         url = f'https://gratka.pl/nieruchomosci/mieszkania?location[map]=1&location[map_bounds]=55.0,24.0:49.0,14.0&powierzchnia-w-m2:max={ma}&powierzchnia-w-m2:min={mi}&sort=relevance'
         page = requests.get(url, timeout=30)
         soup = BeautifulSoup(page.content, 'html.parser')
-        pagination = soup.find_all(class_="iVM-2V Vr8BLu C-LDOy _2Mk82C")
+        page_nums = []
+        for result in soup.find_all(class_="router-link-active router-link-exact-active"):
+            try:
+                page_nums.append(result.find_all('div')[0].find_all('span')[0].text)
+            except:
+                pass
 
         # iterating over result pages
-        for i in range(int(pagination[3].get_text())):
+        for i in range(int(page_nums[-1])):
             url = f'https://gratka.pl/nieruchomosci/mieszkania?page={i+1}&location[map]=1&location[map_bounds]=55.0,24.0:49.0,14.0&powierzchnia-w-m2:max={ma}&powierzchnia-w-m2:min={mi}&sort=relevance'
             page = requests.get(url, timeout=30)
             soup = BeautifulSoup(page.content, 'html.parser')
