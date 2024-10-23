@@ -72,6 +72,13 @@ services:
     image: trainer:latest
     container_name: trainer_dummy
 
+  scraper:
+    build:
+      context: ./scraper
+      dockerfile: Dockerfile
+    image: scraper:latest
+    container_name: scraper_dummy
+
   airflow-webserver:
     <<: *airflow-common
     command: webserver
