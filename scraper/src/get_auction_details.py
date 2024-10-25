@@ -1,10 +1,17 @@
 import os
-import requests
 import re
 import datetime
 import pytz
 from bs4 import BeautifulSoup
 from mysql import connector
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 
 voivodeships = [
 'dolnośląskie',
@@ -33,7 +40,7 @@ def get_current_timestamp():
 
 def get_location(soup):
     try:
-        location = soup.find_all('ul', class_="aPchu6")[0].find_all('li')
+        location = soup.find_all('ul', class_="VZLIup")[0].find_all('li')
         if location[2].get_text() not in voivodeships:
             voivodeship = 'zagranica'
             city = location[3].get_text()
@@ -69,7 +76,9 @@ def get_location(soup):
 
 def get_script(soup):
     try:
-        script = soup.find('script', id='__NUXT_DATA__')
+        script = soup.find('script', id='__NUXT_DATA__').get_text()
+        script = script.replace('\\/','/').replace('\\/','/')
+        script = script.encode('utf-8').decode('unicode_escape').encode('utf-8').decode('unicode_escape')
     except:
         script = []
 
@@ -77,7 +86,7 @@ def get_script(soup):
 
 def get_coordinates(script):
     try:
-        result = re.findall(r',(\d{2}\.\d+),(\d{2}\.\d+),', script.get_text())[-1]
+        result = re.findall(r',(\d{2}\.\d+),(\d{2}\.\d+),', script)[-1]
         localization_y = result[0]
         localization_x = result[1]
     except:
@@ -88,7 +97,7 @@ def get_coordinates(script):
 
 def get_market(script):
     try:
-        market = re.findall(r'\\\"rynek\\\":\\\"(\w+)', script.get_text())[-1]
+        market = re.findall(r'"rynek":"(\w+)', script)[-1]
     except:
         market = None 
 
@@ -96,7 +105,7 @@ def get_market(script):
 
 def get_offer_type(script):
     try:
-        offer_type = re.findall(r'\\\"typoferty\\\":\\\"(\w+)', script.get_text())[-1]
+        offer_type = re.findall(r'"typoferty":"(\w+)', script)[-1]
     except:
         offer_type = None
 
@@ -104,7 +113,7 @@ def get_offer_type(script):
 
 def get_area(script):
     try:
-        area = re.findall(r'\"Pow\. całkowita\",\"(\d*,?\d*)', script.get_text())[-1]
+        area = re.findall(r'kowita","(\d*,?\d*)', script)[-1]
         area = area.replace(',','.')
     except:
         area = None
@@ -113,7 +122,7 @@ def get_area(script):
 
 def get_rooms(script):
     try:
-        rooms = re.findall(r'\\\"number_of_rooms\\\":(\d*)', script.get_text())[-1]
+        rooms = re.findall(r'"number_of_rooms":(\d*)', script)[-1]
     except:
         rooms = None
 
@@ -121,7 +130,7 @@ def get_rooms(script):
 
 def get_floors(soup):
     try:
-        floo = soup.find_all('span', class_="_2Xg-2y")[2].get_text().split()[-1]
+        floo = soup.find_all('span', class_="Qa8Fuh")[2].get_text().split()[-1]
         if '/' in floo:
             li = floo.split('/')
             floor = li[0]
@@ -137,7 +146,7 @@ def get_floors(soup):
 
 def get_buils_yr(script):
     try:
-        build_yr = re.findall(r'\"Rok budowy\",\"(\d{4})', script.get_text())[-1]
+        build_yr = re.findall(r'"Rok budowy","(\d{4})', script)[-1]
     except:
         build_yr = None
 
@@ -145,7 +154,7 @@ def get_buils_yr(script):
 
 def get_price(script):
     try:
-        price = re.findall(r'\\\"price\\\":(\d*)', script.get_text())[-1]
+        price = re.findall(r'"price":(\d*),"priceCurrency', script)[-1]
     except:
         price = 'Zapytajoce'
 
@@ -179,12 +188,29 @@ def get_details(host='mysql_airflow_db'):
         date = result2[0][0]
 
         i = 0
-
+        
         for url in auction_list:
             try:
-                page = requests.get(url, timeout=30)
-                soup = BeautifulSoup(page.text, 'html.parser')
-            except:
+                chrome_options = Options()
+                chrome_options.add_argument('--no-sandbox')
+                chrome_options.add_argument('--headless')
+                chrome_options.add_argument('--disable-dev-shm-usage')
+
+                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+                driver.get(url)
+
+                wait = WebDriverWait(driver, timeout=10)
+                element1 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'Qa8Fuh')))
+                element2 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'VZLIup')))
+                element3 = wait.until(EC.presence_of_element_located((By.ID, '__NUXT_DATA__')))
+
+                page_source = driver.page_source
+                soup = BeautifulSoup(page_source, "html.parser")
+
+                driver.quit()
+                
+            except Exception as e:
                 continue
 
             script = get_script(soup)

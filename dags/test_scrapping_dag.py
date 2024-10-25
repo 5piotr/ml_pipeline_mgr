@@ -3,9 +3,10 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.email import EmailOperator
+from airflow.providers.docker.operators.docker import DockerOperator
+from docker.types import Mount
 
 from src.get_auction_list import get_list
-from src.get_auction_details import get_details
 from src.clean_data import clean
 
 default_args = {
@@ -40,9 +41,21 @@ with DAG(
         # op_kwargs={'flat_size': [[0,20]]}
     )
 
-    task3 = PythonOperator(
+    task3 = DockerOperator(
         task_id='get_auction_details',
-        python_callable=get_details
+        image='scraper:latest',
+        container_name='scraping_container',
+        api_version='auto',
+        auto_remove=True,
+        command="python src/get_auction_details.py",
+        docker_url="unix://var/run/docker.sock",
+        network_mode="bridge",
+        mount_tmp_dir=False,
+        mounts=[Mount(source=f'{os.environ["APT_DIR"]}/scraper',
+                      target='/code',
+                      type='bind')],
+        environment={'MYSQL_PASSWORD': os.environ['MYSQL_PASSWORD'],
+                     'PAPUGA_IP': os.environ['PAPUGA_IP']}
     )
 
     task4 = PythonOperator(
