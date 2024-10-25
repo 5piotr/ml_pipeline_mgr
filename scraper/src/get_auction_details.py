@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import datetime
 import pytz
@@ -160,12 +161,13 @@ def get_price(script):
 
     return price
 
-def get_details(host='mysql_airflow_db'):
+def get_details(host):
 
     query1 = '''
     select url 
     from apt_urls
     where date = (select max(date) from apt_urls)
+    order by id
     '''
     query2 = '''
     select max(date)
@@ -173,7 +175,7 @@ def get_details(host='mysql_airflow_db'):
     '''
 
     with connector.connect(
-        host = os.environ['PAPUGA_IP'],
+        host = host,
         user = 'piotr',
         password = os.environ['MYSQL_PASSWORD'],
         database = 'airflow_db') as conn:
@@ -188,16 +190,15 @@ def get_details(host='mysql_airflow_db'):
         date = result2[0][0]
 
         i = 0
+
+        chrome_options = Options()
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         
         for url in auction_list:
             try:
-                chrome_options = Options()
-                chrome_options.add_argument('--no-sandbox')
-                chrome_options.add_argument('--headless')
-                chrome_options.add_argument('--disable-dev-shm-usage')
-
-                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
                 driver.get(url)
 
                 wait = WebDriverWait(driver, timeout=10)
@@ -207,9 +208,7 @@ def get_details(host='mysql_airflow_db'):
 
                 page_source = driver.page_source
                 soup = BeautifulSoup(page_source, "html.parser")
-
-                driver.quit()
-                
+                               
             except Exception as e:
                 continue
 
@@ -248,5 +247,7 @@ def get_details(host='mysql_airflow_db'):
                 timestamp = get_current_timestamp()
                 print(f'PIOTR: list completion {completion}% at {timestamp}')
 
+        driver.quit()
+
 if __name__=='__main__':
-    get_details(host='localhost')
+    get_details(host=os.environ['PAPUGA_IP'])
