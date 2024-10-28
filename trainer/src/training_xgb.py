@@ -1,21 +1,26 @@
 from xgboost import XGBRegressor
 import lib
 
-x_train, x_test, y_train, y_test = lib.load_train_test('train_data/')
+def main():
 
-model = XGBRegressor(objective='reg:squarederror',
-                     n_estimators=500,
-                     tree_method='hist',
-                     random_state=42)
+    x_train, x_test, y_train, y_test = lib.load_train_test('train_data/')
 
-model.fit(X=x_train,
-          y=y_train,
-          verbose=True)
+    model = XGBRegressor(objective='reg:squarederror',
+                        n_estimators=500,
+                        tree_method='hist',
+                        random_state=42)
 
-model.save_model('../models/temp/xgb.json')
+    model.fit(X=x_train,
+            y=y_train,
+            verbose=True)
 
-predictions = model.predict(x_test)
+    model.save_model('../models/temp/xgb.json')
 
-r2 = lib.evaluate_pred(y_test, predictions)
+    predictions = model.predict(x_test)
 
-lib.save_txt(str(r2), '../models/temp/xgb.r2')
+    r2 = lib.evaluate_pred(y_test, predictions)
+
+    lib.save_txt(str(r2), '../models/temp/xgb.r2')
+    
+if __name__=='__main__':
+    main()
