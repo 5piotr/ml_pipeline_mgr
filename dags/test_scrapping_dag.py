@@ -38,7 +38,7 @@ with DAG(
         task_id='get_auction_list',
         retries=1,
         python_callable=get_list,
-        # op_kwargs={'flat_size': [[0,20]]}
+        op_kwargs={'flat_size': [[0,20]]}
     )
 
     task3 = DockerOperator(

@@ -44,9 +44,21 @@ with DAG(
         python_callable=get_list
     )
 
-    task3 = PythonOperator(
+    task3 = DockerOperator(
         task_id='get_auction_details',
-        python_callable=get_details
+        image='scraper:latest',
+        container_name='scraping_container',
+        api_version='auto',
+        auto_remove=True,
+        command="python src/get_auction_details.py",
+        docker_url="unix://var/run/docker.sock",
+        network_mode="bridge",
+        mount_tmp_dir=False,
+        mounts=[Mount(source=f'{os.environ["APT_DIR"]}/scraper',
+                      target='/code',
+                      type='bind')],
+        environment={'MYSQL_PASSWORD': os.environ['MYSQL_PASSWORD'],
+                     'PAPUGA_IP': os.environ['PAPUGA_IP']}
     )
 
     task4 = PythonOperator(
