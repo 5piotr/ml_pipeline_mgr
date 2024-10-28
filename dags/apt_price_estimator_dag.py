@@ -7,7 +7,6 @@ from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
 
 from src.get_auction_list import get_list
-from src.get_auction_details import get_details
 from src.clean_data import clean
 from src.log_run import log
 from src.update_models import update
@@ -44,22 +43,28 @@ with DAG(
         python_callable=get_list
     )
 
-    task3 = DockerOperator(
-        task_id='get_auction_details',
-        image='scraper:latest',
-        container_name='scraping_container',
-        api_version='auto',
-        auto_remove=True,
-        command="python src/get_auction_details.py",
-        docker_url="unix://var/run/docker.sock",
-        network_mode="bridge",
-        mount_tmp_dir=False,
-        mounts=[Mount(source=f'{os.environ["APT_DIR"]}/scraper',
-                      target='/code',
-                      type='bind')],
-        environment={'MYSQL_PASSWORD': os.environ['MYSQL_PASSWORD'],
-                     'PAPUGA_IP': os.environ['PAPUGA_IP']}
-    )
+    def get_scraping_task(part):
+        task = DockerOperator(
+            task_id=f'get_auction_details_{part}',
+            image='scraper:latest',
+            container_name=f'scraping_container_{part}',
+            api_version='auto',
+            auto_remove=True,
+            command=f"python src/get_auction_details.py {part}",
+            docker_url="unix://var/run/docker.sock",
+            network_mode="bridge",
+            mount_tmp_dir=False,
+            mounts=[Mount(source=f'{os.environ["APT_DIR"]}/scraper',
+                        target='/code',
+                        type='bind')],
+            environment={'MYSQL_PASSWORD': os.environ['MYSQL_PASSWORD'],
+                        'PAPUGA_IP': os.environ['PAPUGA_IP']}
+        )
+        return task
+    
+    task3a = get_scraping_task(0)
+
+    task3b = get_scraping_task(1)
 
     task4 = PythonOperator(
         task_id='clean_data',
@@ -160,6 +165,6 @@ with DAG(
         html_content=email()
     )
 
-    task1 >> task2 >> task3 >> task4 >> \
-    task5 >> task6 >> task7 >> task8 >> \
-    task9 >> task10 >> task11
+    task1 >> task2 >> [task3a, task3b] >> \
+    task4 >> task5 >> task6 >> task7 >> \
+    task8 >> task9 >> task10 >> task11

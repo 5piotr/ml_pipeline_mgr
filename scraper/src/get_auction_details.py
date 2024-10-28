@@ -14,6 +14,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 voivodeships = [
 'dolnośląskie',
 'kujawsko-pomorskie',
@@ -78,8 +81,6 @@ def get_location(soup):
 def get_script(soup):
     try:
         script = soup.find('script', id='__NUXT_DATA__').get_text()
-        script = script.replace('\\/','/').replace('\\/','/')
-        script = script.encode('utf-8').decode('unicode_escape').encode('utf-8').decode('unicode_escape')
     except:
         script = []
 
@@ -98,7 +99,7 @@ def get_coordinates(script):
 
 def get_market(script):
     try:
-        market = re.findall(r'"rynek":"(\w+)', script)[-1]
+        market = re.findall(r'\\\"rynek\\\":\\\"(\w+)', script)[-1]
     except:
         market = None 
 
@@ -106,7 +107,7 @@ def get_market(script):
 
 def get_offer_type(script):
     try:
-        offer_type = re.findall(r'"typoferty":"(\w+)', script)[-1]
+        offer_type = re.findall(r'\\\"typoferty\\\":\\\"(\w+)', script)[-1]
     except:
         offer_type = None
 
@@ -114,7 +115,7 @@ def get_offer_type(script):
 
 def get_area(script):
     try:
-        area = re.findall(r'kowita","(\d*,?\d*)', script)[-1]
+        area = re.findall(r'\"Pow\. całkowita\",\"(\d*,?\d*)', script)[-1]
         area = area.replace(',','.')
     except:
         area = None
@@ -123,7 +124,7 @@ def get_area(script):
 
 def get_rooms(script):
     try:
-        rooms = re.findall(r'"number_of_rooms":(\d*)', script)[-1]
+        rooms = re.findall(r'\\\"number_of_rooms\\\":(\d*)', script)[-1]
     except:
         rooms = None
 
@@ -147,7 +148,7 @@ def get_floors(soup):
 
 def get_buils_yr(script):
     try:
-        build_yr = re.findall(r'"Rok budowy","(\d{4})', script)[-1]
+        build_yr = re.findall(r'\"Rok budowy\",\"(\d{4})', script)[-1]
     except:
         build_yr = None
 
@@ -155,13 +156,13 @@ def get_buils_yr(script):
 
 def get_price(script):
     try:
-        price = re.findall(r'"price":(\d*),"priceCurrency', script)[-1]
+        price = re.findall(r'\\\"price\\\":(\d*),\\\"priceCurrency', script)[-1]
     except:
         price = 'Zapytajoce'
 
     return price
 
-def get_details(host):
+def get_details(host, part):
 
     query1 = '''
     select url 
@@ -197,7 +198,9 @@ def get_details(host):
         chrome_options.add_argument('--disable-dev-shm-usage')
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         
-        for url in auction_list:
+        chunk = len(auction_list) // 2
+
+        for url in auction_list[chunk*part:chunk*(part+1)]:
             try:
                 driver.get(url)
 
@@ -242,12 +245,13 @@ def get_details(host):
                 conn.commit()
 
             i += 1
-            if i%500 == 0 or i == len(auction_list):
-                completion = round(i/len(auction_list)*100,2)
+            if i%500 == 0 or i == len(chunk):
+                completion = round(i/len(chunk)*100,2)
                 timestamp = get_current_timestamp()
-                print(f'PIOTR: list completion {completion}% at {timestamp}')
+                logging.info(f'PIOTR: list completion {completion}% at {timestamp}')
 
         driver.quit()
 
 if __name__=='__main__':
-    get_details(host=os.environ['PAPUGA_IP'])
+    part = int(sys.argv[1])
+    get_details(host=os.environ['PAPUGA_IP'], part=part)
