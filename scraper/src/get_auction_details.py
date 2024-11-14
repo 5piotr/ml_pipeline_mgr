@@ -132,7 +132,7 @@ def get_rooms(script):
 
 def get_floors(soup):
     try:
-        floo = soup.find_all('span', class_="Qa8Fuh")[2].get_text().split()[-1]
+        floo = soup.find_all('span', class_="_1Aukq8")[2].get_text().split()[-1]
         if '/' in floo:
             li = floo.split('/')
             floor = li[0]
@@ -204,8 +204,8 @@ def get_details(host, part):
             try:
                 driver.get(url)
 
-                wait = WebDriverWait(driver, timeout=10)
-                element1 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'Qa8Fuh')))
+                wait = WebDriverWait(driver, timeout=3)
+                element1 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, '_1Aukq8')))
                 element2 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'VZLIup')))
                 element3 = wait.until(EC.presence_of_element_located((By.ID, '__NUXT_DATA__')))
 
@@ -245,8 +245,8 @@ def get_details(host, part):
                 conn.commit()
 
             i += 1
-            if i%500 == 0 or i == len(chunk):
-                completion = round(i/len(chunk)*100,2)
+            if i%500 == 0 or i == chunk:
+                completion = round(i/chunk*100,2)
                 timestamp = get_current_timestamp()
                 logging.info(f'PIOTR: list completion {completion}% at {timestamp}')
 
