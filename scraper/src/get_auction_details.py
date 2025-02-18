@@ -42,9 +42,9 @@ def get_current_timestamp():
     timestamp = datetime.datetime.now(warsaw_tz).strftime('%Y-%m-%d_%H:%M:%S')
     return timestamp
 
-def get_location(soup):
+def get_location(soup, location_class):
     try:
-        location = soup.find_all('ul', class_="VZLIup")[0].find_all('li')
+        location = soup.find_all('ul', class_=location_class)[0].find_all('li')
         if location[2].get_text() not in voivodeships:
             voivodeship = 'zagranica'
             city = location[3].get_text()
@@ -130,9 +130,9 @@ def get_rooms(script):
 
     return rooms
 
-def get_floors(soup):
+def get_floors(soup, floor_class):
     try:
-        floo = soup.find_all('span', class_="_1Aukq8")[2].get_text().split()[-1]
+        floo = soup.find_all('span', class_=floor_class)[2].get_text().split()[-1]
         if '/' in floo:
             li = floo.split('/')
             floor = li[0]
@@ -198,6 +198,9 @@ def get_details(host, part):
         chrome_options.add_argument('--disable-dev-shm-usage')
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         
+        location_class = 'VZLIup'
+        floor_class = '_1Aukq8'
+        
         chunk = len(auction_list) // 2
 
         for url in auction_list[chunk*part:chunk*(part+1)]:
@@ -205,8 +208,8 @@ def get_details(host, part):
                 driver.get(url)
 
                 wait = WebDriverWait(driver, timeout=3)
-                element1 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, '_1Aukq8')))
-                element2 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'VZLIup')))
+                element1 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, floor_class)))
+                element2 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, location_class)))
                 element3 = wait.until(EC.presence_of_element_located((By.ID, '__NUXT_DATA__')))
 
                 page_source = driver.page_source
@@ -217,13 +220,13 @@ def get_details(host, part):
 
             script = get_script(soup)
 
-            city, voivodeship, district = get_location(soup)
+            city, voivodeship, district = get_location(soup, location_class)
             localization_x, localization_y = get_coordinates(script)
             market = get_market(script)
             offer_type = get_offer_type(script)
             area = get_area(script)
             rooms = get_rooms(script)
-            floor, floors = get_floors(soup)
+            floor, floors = get_floors(soup, floor_class)
             build_yr = get_buils_yr(script)           
             price = get_price(script)
 
