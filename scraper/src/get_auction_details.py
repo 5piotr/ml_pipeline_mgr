@@ -198,7 +198,7 @@ def get_details(host, part):
         chrome_options.add_argument('--disable-dev-shm-usage')
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         
-        location_class = 'VZLIup'
+        location_class = 'nk4d4N'
         floor_class = 'urcZHx'
         
         chunk = len(auction_list) // 2
