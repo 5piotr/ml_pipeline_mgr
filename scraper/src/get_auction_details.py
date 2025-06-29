@@ -88,7 +88,7 @@ def get_script(soup):
 
 def get_coordinates(script):
     try:
-        result = re.findall(r',(\d{2}\.\d+),(\d{2}\.\d+),', script)[-1]
+        result = re.findall(r',(\d{2}\.\d+),(\d{2}\.\d+),', script)[0]
         localization_y = result[0]
         localization_x = result[1]
     except:
