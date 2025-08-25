@@ -199,7 +199,7 @@ def get_details(host, part):
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         
         location_class = 'nk4d4N'
-        floor_class = 'urcZHx'
+        floor_class = 'YVoyJ-'  
         
         chunk = len(auction_list) // 2
 
