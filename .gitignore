@@ -11,3 +11,6 @@ train_data/
 db_test.sql
 
 .env
+
+__pycache__/
+*.pyc
