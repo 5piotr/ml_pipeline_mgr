@@ -7,12 +7,12 @@ def clean():
 
     query = '''
         select * from apt_details_raw
-        where date > '2025-01-01' and date < '2025-12-01'
+        where date = (select max(date) from apt_details_raw)
         '''
 
     username = 'piotr'
     password = os.environ['MYSQL_PASSWORD']
-    host = '192.168.0.133'
+    host = 'mysql_airflow_db'
     db_name = 'airflow_db'
     db_url = f'mysql+mysqlconnector://{username}:{password}@{host}/{db_name}'
 
