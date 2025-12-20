@@ -7,12 +7,12 @@ def clean():
 
     query = '''
         select * from apt_details_raw
-        where date = (select max(date) from apt_details_raw)
+        where date > '2025-01-01' and date < '2025-12-01'
         '''
 
     username = 'piotr'
     password = os.environ['MYSQL_PASSWORD']
-    host = 'mysql_airflow_db'
+    host = '192.168.0.133'
     db_name = 'airflow_db'
     db_url = f'mysql+mysqlconnector://{username}:{password}@{host}/{db_name}'
 
@@ -43,6 +43,8 @@ def clean():
 
     # cleaning categorical data
     data_raw.floor.replace('parter', '0', inplace=True)
+    data_raw = data_raw[data_raw.floor != 'suterena']
+    data_raw = data_raw[data_raw.floors != 'windą']
 
     # changing data types
     data_raw.localization_x = data_raw.localization_x.astype('float')
@@ -66,7 +68,7 @@ def clean():
         lower_quartile = np.nanpercentile(data_raw[column], 1.0)
         outliers_dict[column] = (lower_quartile, upper_quartile)
 
-    outliers_dict['build_yr'] = (1900.0, 2024.0)
+    outliers_dict['build_yr'] = (1900, pd.Timestamp.now().year)
     outliers_dict['floor'] = (0, 15)
     outliers_dict['floors'] = (0, 15)
     outliers_dict['rooms'] = (0, 6)
@@ -80,7 +82,8 @@ def clean():
     print(f'PIOTR: processed data shape: {data_raw.shape}')
 
     with engine.connect() as conn:
-        data_raw.to_sql(con=conn, name='apt_details', if_exists='append', index=False)
+        data_raw.to_sql(con=conn, name='apt_details', if_exists='append', index=False,
+        chunksize=30000)
 
     engine.dispose()
 

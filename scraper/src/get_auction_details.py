@@ -132,11 +132,11 @@ def get_rooms(script):
 
 def get_floors(soup, floor_class):
     try:
-        floo = soup.find_all('span', class_=floor_class)[2].get_text().split()[-1]
-        if '/' in floo:
-            li = floo.split('/')
-            floor = li[0]
-            floors = li[1]
+        floo = soup.find_all('li', class_=floor_class)[0].find('strong').get_text()
+        if 'z' in floo:
+            li = floo.split('z')
+            floor = li[0].strip()
+            floors = li[1].strip()
         else:
             floor = floo
             floors = None
@@ -198,8 +198,8 @@ def get_details(host, part):
         chrome_options.add_argument('--disable-dev-shm-usage')
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         
-        location_class = 'nk4d4N'
-        floor_class = 'YVoyJ-'  
+        location_class = 'breadcrumbs__list'
+        floor_class = 'details-highlighted-parameters__item--floor'
         
         chunk = len(auction_list) // 2
 
