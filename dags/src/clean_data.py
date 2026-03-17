@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 import pandas as pd
 import numpy as np
 
-def clean():
+def clean(host = 'mysql_airflow_db'):
 
     query = '''
         select * from apt_details_raw
@@ -12,7 +12,7 @@ def clean():
 
     username = 'piotr'
     password = os.environ['MYSQL_PASSWORD']
-    host = 'mysql_airflow_db'
+    host = host
     db_name = 'airflow_db'
     db_url = f'mysql+mysqlconnector://{username}:{password}@{host}/{db_name}'
 
@@ -88,4 +88,4 @@ def clean():
     engine.dispose()
 
 if __name__=='__main__':
-    clean()
+    clean(host = 'localhost')
