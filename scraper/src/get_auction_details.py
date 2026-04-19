@@ -5,6 +5,7 @@ import datetime
 import pytz
 from bs4 import BeautifulSoup
 from mysql import connector
+from urllib.parse import unquote
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -42,39 +43,22 @@ def get_current_timestamp():
     timestamp = datetime.datetime.now(warsaw_tz).strftime('%Y-%m-%d_%H:%M:%S')
     return timestamp
 
-def get_location(soup, location_class):
+def get_location(script):
     try:
-        location = soup.find_all('ul', class_=location_class)[0].find_all('li')
-        if location[2].get_text() not in voivodeships:
+        voivodeship = re.findall(r"meeting_voivoidship=([^&]+)", script)[-1]
+        voivodeship = unquote(voivodeship)
+        if voivodeship not in voivodeships:
             voivodeship = 'zagranica'
-            city = location[3].get_text()
-            district = location[2].get_text()
-
-            return city, voivodeship, district
-
-        voivodeship = location[2].get_text()
-        if len(location)==4:
-            city = location[3].get_text()
-            district = None
-        elif location[3].get_text().endswith('(pow.)'):
-            city = location[4].get_text().split(' ')[0]
-            district = None
-        else:        
-            city = location[3].get_text()
-            prefixes = ['ul.','al.','Os.','pl.','rondo']
-            counter = 0
-            for prefix in prefixes:
-                if location[4].get_text().startswith(prefix):
-                    counter += 1
-                    break
-            if counter > 0:
-                district = None
-            else:
-                district = location[4].get_text()
     except:
         voivodeship = None
+
+    try:
+        city = re.findall(r"meeting_city=([^&]+)", script)[-1]
+        city = unquote(city).replace('+',' ')
+    except:
         city = None
-        district = None
+
+    district = None
 
     return city, voivodeship, district
 
@@ -198,7 +182,6 @@ def get_details(host, part):
         chrome_options.add_argument('--disable-dev-shm-usage')
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         
-        location_class = 'breadcrumbs__list'
         floor_class = 'details-highlighted-parameters__item--floor'
         
         chunk = len(auction_list) // 2
@@ -209,7 +192,6 @@ def get_details(host, part):
 
                 wait = WebDriverWait(driver, timeout=3)
                 element1 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, floor_class)))
-                element2 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, location_class)))
                 element3 = wait.until(EC.presence_of_element_located((By.ID, '__NUXT_DATA__')))
 
                 page_source = driver.page_source
@@ -220,7 +202,7 @@ def get_details(host, part):
 
             script = get_script(soup)
 
-            city, voivodeship, district = get_location(soup, location_class)
+            city, voivodeship, district = get_location(script)
             localization_x, localization_y = get_coordinates(script)
             market = get_market(script)
             offer_type = get_offer_type(script)
